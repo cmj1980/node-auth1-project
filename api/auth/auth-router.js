@@ -7,7 +7,7 @@ const {
   checkUsernameExists,
   checkUsernameFree
 } = require('./auth-middleware')
-const bcyrpt = require('bcryptjs')
+const bcrypt = require('bcryptjs')
 
 
 router.post('/register', checkPasswordLength, checkUsernameFree, (req, res, next) => {
@@ -15,8 +15,7 @@ router.post('/register', checkPasswordLength, checkUsernameFree, (req, res, next
     username,
     password
   } = req.body
-  const hash = bcyrpt.hashSync(password, 8)
-
+  const hash = bcrypt.hashSync(password, 8)
   User.add({
       username,
       password: hash
@@ -25,22 +24,22 @@ router.post('/register', checkPasswordLength, checkUsernameFree, (req, res, next
       res.status(201).json(saved)
     })
     .catch(next)
-
 })
+
 
 router.post('/login', checkUsernameExists, (req, res, next) => {
   const {
     password
   } = req.body
-  if (bcyrpt.compareSync(password, req.user.password)) {
+  if (bcrypt.compareSync(password, req.user.password)) {
     req.session.user = req.user
     res.json({
       message: ` Welcome ${req.user.username}`
     })
   } else {
     next({
-      status: 401,
-      message: 'Invalid credentials'
+      message: 'Invalid credentials',
+      status: 401
     })
   }
 })
